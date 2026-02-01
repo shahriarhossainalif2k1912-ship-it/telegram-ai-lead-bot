@@ -1,0 +1,283 @@
+{
+  "name": "My workflow 5",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Extract structured information from the message below.\n\nReturn ONLY valid JSON.\n\n{\n  \"name\": \"\",\n  \"email\": \"\",\n  \"intent\": \"\",\n  \"urgency\": \"low | medium | high\",\n  \"summary\": \"\"\n}\n\nMessage:\n{{$json.message.text}}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7ea66978-6b5f-412b-a394-03cc34d64f5d",
+      "name": "AI Agent",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        112,
+        256
+      ],
+      "id": "629847f0-4f23-48e2-bbaf-3104a98c613b",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "qEtuKzQgNkap0m9m",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Eohswo9xEgAulpI-uPBKugsQkhIUg5uQevidDtTeqYw",
+          "mode": "list",
+          "cachedResultName": "UrgencyReport",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Eohswo9xEgAulpI-uPBKugsQkhIUg5uQevidDtTeqYw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Eohswo9xEgAulpI-uPBKugsQkhIUg5uQevidDtTeqYw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.parsed.name }}",
+            "Email": "={{ $json.parsed.email }}",
+            "Intent": "={{ $json.parsed.intent }}",
+            "Urgency": "={{ $json.parsed.urgency }}",
+            "Summary": "={{ $json.parsed.summary }}",
+            "Time": "={{$now}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent",
+              "displayName": "Intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        992,
+        0
+      ],
+      "id": "9221fd0f-4606-41e4-99ef-b1e9e6a8eda9",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NSvRN2h5Iz8Ynryh",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Telegram Trigger\"].json[\"message\"][\"chat\"][\"id\"]}}",
+        "text": "=🔥 New Customer Message:\nName: {{ $json.Name }}  \nEmail: {{ $json.Email }}  \nIntent: {{ $json.Intent }}  \nUrgency: {{ $json.Urgency }}  \nSummary: {{ $json.Summary }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "9db46448-9d40-4c0c-a534-35b3b2af4ea1",
+      "name": "Send a text message",
+      "webhookId": "03858f17-32ad-4360-8e55-67ef81e317e0",
+      "credentials": {
+        "telegramApi": {
+          "id": "XDIfptbMvAmH6k0O",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        0
+      ],
+      "id": "c0c9f829-7168-4a37-b565-0c9e4b24f982",
+      "name": "Telegram Trigger",
+      "webhookId": "0242224b-fb81-41ff-8e67-1306ee6901fc",
+      "credentials": {
+        "telegramApi": {
+          "id": "XDIfptbMvAmH6k0O",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "242bff96-01b4-4bd9-81f7-d2e6e380aa0f",
+              "name": "parsed",
+              "value": "={{ $json.output }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        640,
+        0
+      ],
+      "id": "e551d157-afad-4365-9700-fad58f03e57e",
+      "name": "Parse AI Output"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f7fd5163-56a5-4273-ba89-6980134c4299",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f6c92064d5fe6cbf6e48ce3dd6367fe480e732e17392ce78d74df9a289a2870f"
+  },
+  "id": "8KYTtpEshAjJ4UW6A-E93",
+  "tags": []
+}
